@@ -1,6 +1,6 @@
 {
   "name": "penpal-connect",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "type": "module",
   "source": "src/index.js",
   "module": "dist/index.esm.js",
@@ -51,6 +51,5 @@
   },
   "publishConfig": {
     "registry": "https://registry.anpm.alibaba-inc.com"
-  },
-  "repository": "git@gitlab.alibaba-inc.com:ali-metaverse/ali-metaverse-js-sdk.git"
+  }
 }

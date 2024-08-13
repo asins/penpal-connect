@@ -1,14 +1,9 @@
-import {
-  ConnectType,
-  NativeEventType,
-} from '@/options';
+import { PenpalMessage } from './types';
 
 export { connectToChild } from '@/connectToChild';
 export { connectToParent } from '@/connectToParent';
 
-export type * from '@/options';
 
-export {
-  ConnectType,
-  NativeEventType,
+export type {
+  PenpalMessage,
 }
