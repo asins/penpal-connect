@@ -18,6 +18,7 @@ import {
 } from '@demo/utils';
 import { connectToChild } from "@/index";
 import to from "await-to-js";
+import { PenpalMessage } from "@/types";
 
 const moduleName = 'PenpalConnectDemo:Parent';
 const zLog = createDebug(moduleName);
@@ -74,35 +75,46 @@ function initUiParent(
   $btnIframeConnect.addEventListener('click', () => {
     const iframeUrl = $iptIframeUrl.value.trim();
     logToNewline($resultChannelMsg, `打开子页面: ${iframeUrl}`, WarnColor);
-    createIframe(iframeUrl, 'game-iframe');
+    const frame = createIframe(iframeUrl, 'game-iframe');
 
     if (!hasConnectChilded) {
       hasConnectChilded = true;
       logToNewline($resultChannelMsg, `开始监听子页面的握手消息`, NormalColor);
-      connectChild($formClientUI, iframeUrl);
+      connectChild($formClientUI, frame);
+      zLog('创建子页面，url=', frame.src);
     }
   });
 }
 
-async function connectChild($root: HTMLDivElement, childUrl: string) {
+async function connectChild($root: HTMLDivElement, iframe: HTMLIFrameElement) {
   const $resultChannelMsg = $<HTMLSpanElement>('#resultChannelMsg', $root);
   const $btnParentSayHello = $<HTMLButtonElement>('#btnParentSayHello', $root);
   const $btnParentSayBye = $<HTMLButtonElement>('#btnParentSayBye', $root);
 
-  const origin = getOriginFromUrl(childUrl);
+  const origin = getOriginFromUrl(iframe.src);
   zLog('origin=', origin);
 
   const connection = connectToChild<ChildMethods>({
-    target: window,
+    target: {
+      postMessage: (message: PenpalMessage, origin: string) => {
+        const cWin = iframe.contentWindow;
+        if (cWin) {
+          cWin.postMessage(message, origin);
+        }
+      },
+      onMessage: (handle: any) => {
+        window.addEventListener('message', handle);
+      },
+    },
     log: zLog,
     timeout: 20 * 1000,
     origin: origin || '*',
     methods: {
-      parentSayHello: (name: string) => {
-        return '[Parent] Hello ' + name;
+      parentSayHello: (name: string, time: number) => {
+        return Promise.resolve(`[Parent] Hello ${name}! time diff:${Date.now() - time}`);
       },
       parentSayBye: () => {
-        return '[Parent] Bye';
+        return Promise.resolve('[Parent] Bye');
       }
     }
   });
@@ -119,7 +131,7 @@ async function connectChild($root: HTMLDivElement, childUrl: string) {
   updateButtonDisable($btnParentSayBye, false, SuccessColor);
   $btnParentSayHello.addEventListener('click', async () => {
     logToNewline($resultChannelMsg, `[父-->子] 调用childSayHello`, NormalColor);
-    const result = await child.childSayHello('World');
+    const result = await child.childSayHello('World', Date.now());
     logToNewline($resultChannelMsg, `[父-->子] 调用childSayHello 结果：${result}`, SuccessColor);
   });
   $btnParentSayBye.addEventListener('click', async () => {
@@ -130,7 +142,7 @@ async function connectChild($root: HTMLDivElement, childUrl: string) {
 }
 
 
-interface ChildMethods {
-  childSayHello: (name: string) => string;
-  childSayBye: () => string;
-}
+type ChildMethods = {
+  childSayHello: (name: string) => Promise<string>;
+  childSayBye: () => Promise<string>;
+};

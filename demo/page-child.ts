@@ -18,6 +18,7 @@ import { initUiGlobal } from "@demo/ui-global";
 import createDebug from 'zlog-web';
 import { connectToParent } from "@/index";
 import to from "await-to-js";
+import { PenpalMessage } from "@/types";
 
 const moduleName = 'PenpalConnectDemo:Child';
 const zLog = createDebug(moduleName);
@@ -73,16 +74,23 @@ async function connectParent($root: HTMLDivElement) {
   // const origin = getOriginFromUrl(childUrl);
 
   const connection = connectToParent<ParentMethods>({
-    target: window,
+    target: {
+      postMessage: (message: PenpalMessage, origin: string) => {
+        window.parent.postMessage(message, origin);
+      },
+      onMessage: (handle: any) => {
+        window.addEventListener('message', handle);
+      },
+    },
     log: zLog,
     timeout: 20 * 1000,
     origin: 'http://127.0.0.1:3003',
     methods: {
-      childSayHello: (name: string) => {
-        return '[Child] Hello ' + name;
+      childSayHello: (name: string, time: number) => {
+        return Promise.resolve(`[Child] Hello ${name}! time diff:${Date.now() - time}`);
       },
       childSayBye: () => {
-        return '[Child] Bye!';
+        return Promise.resolve('[Child] Bye!');
       }
     }
   });
@@ -99,7 +107,7 @@ async function connectParent($root: HTMLDivElement) {
   updateButtonDisable($btnChildSayBye, false, SuccessColor);  
   $btnChildSayHello.addEventListener('click', async () => {
     logToNewline($resultChannelMsg, `[子-->父] 调用parentSayHello`, NormalColor);
-    const result = await parent.parentSayHello('world');
+    const result = await parent.parentSayHello('World', Date.now());
     logToNewline($resultChannelMsg, `[子-->父] 调用parentSayHello 结果：${result}`, SuccessColor);
   });
   $btnChildSayBye.addEventListener('click', async () => {
@@ -110,6 +118,6 @@ async function connectParent($root: HTMLDivElement) {
 }
 
 type ParentMethods = {
-  parentSayHello: (name: string) => string;
-  parentSayBye: () => string;
+  parentSayHello: (name: string) => Promise<string>;
+  parentSayBye: () => Promise<string>;
 }
