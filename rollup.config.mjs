@@ -13,7 +13,10 @@ import dts from 'rollup-plugin-dts';
 import replace from '@rollup/plugin-replace';
 import { isFunction } from '@theroyalwhee0/istype';
 import { terser } from 'rollup-plugin-terser';
-import pkg from './package.json' assert { type: 'json' };
+import { createRequire } from "module";
+
+const require = createRequire(import.meta.url);
+const pkg = require("./package.json");
 
 const curFilePath = fileURLToPath(import.meta.url);
 const projectDirPath = path.join(path.dirname(curFilePath), './');
