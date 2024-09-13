@@ -92,7 +92,7 @@ async function connectChild($root: HTMLDivElement, iframe: HTMLIFrameElement) {
   const $btnParentSayBye = $<HTMLButtonElement>('#btnParentSayBye', $root);
 
   const origin = getOriginFromUrl(iframe.src);
-  zLog('origin=', origin);
+  zLog('parent page use iframe origin=', origin);
 
   const connection = connectToChild<ChildMethods>({
     target: {
@@ -103,7 +103,11 @@ async function connectChild($root: HTMLDivElement, iframe: HTMLIFrameElement) {
         }
       },
       onMessage: (handle: any) => {
-        window.addEventListener('message', handle);
+        console.log('parent onMessage fn');
+        window.addEventListener('message', (e) => {
+          console.log('parent window.onMessage=', e);
+          handle(e);
+        });
       },
     },
     log: zLog,

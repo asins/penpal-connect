@@ -71,20 +71,25 @@ async function connectParent($root: HTMLDivElement) {
   const $btnChildSayHello = $<HTMLButtonElement>('#btnChildSayHello', $root);
   const $btnChildSayBye = $<HTMLButtonElement>('#btnChildSayBye', $root);
 
-  // const origin = getOriginFromUrl(childUrl);
+  const origin = '*'; // 'http://127.0.0.1:3003';
 
   const connection = connectToParent<ParentMethods>({
     target: {
       postMessage: (message: PenpalMessage, origin: string) => {
+        console.log('child postMessage=', message, origin);
         window.parent.postMessage(message, origin);
       },
       onMessage: (handle: any) => {
-        window.addEventListener('message', handle);
+        console.log('child onMessage fn');
+        window.addEventListener('message', (e) => {
+          console.log('child window.onMessage=', e);
+          handle({data: e.data, origin})
+        });
       },
     },
     log: zLog,
     timeout: 20 * 1000,
-    origin: 'http://127.0.0.1:3003',
+    origin: origin,
     methods: {
       childSayHello: (name: string, time: number) => {
         return Promise.resolve(`[Child] Hello ${name}! time diff:${Date.now() - time}`);
