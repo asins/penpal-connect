@@ -20,6 +20,7 @@ import {
   HandshakeMessage,
   PenpalMessage,
   ReplyMessage,
+  TargetWindow,
 } from "./types";
 import { isFunction } from "@theroyalwhee0/istype";
 
@@ -32,14 +33,19 @@ import { isFunction } from "@theroyalwhee0/istype";
  */
 
 export function connectToChild<TCallSender extends CallSender>(
-  option: ConnectOptions
+  {
+    target,
+    methods = {},
+    log: zLog = emptyFn,
+    origin = '*',
+    timeout,
+  }: ConnectOptions
 ) {
-  const { target, methods = {}, log: zLog = emptyFn, origin = '*', timeout } = option
   let destroyed = false; // 是否已销毁
 
   const startTime = Date.now();
   const callSender = {} as TCallSender;
-  const deferredChild = defer<CallSender>();
+  const deferredChild = defer<TCallSender>();
   const callSenderFactory = createHandlerFactory();
 
   // 发送数据
@@ -226,4 +232,6 @@ export function connectToChild<TCallSender extends CallSender>(
 
 export type {
   PenpalMessage,
+  TargetWindow,
+  CallSender,
 }

@@ -48,5 +48,17 @@
     "tiny-glob": "^0.2.9",
     "tslib": "^2.6.2",
     "typescript": "^5.4.4"
+  },
+  "exports": {
+    "./child": {
+      "import": "./dist/connectToParent.esm.js",
+      "require": "./dist/connectToParent.cjs.js",
+      "types": "./dist/connectToParent.d.ts"
+    },
+    "./parent": {
+      "import": "./dist/connectToChild.esm.js",
+      "require": "./dist/connectToChild.cjs.js",
+      "types": "./dist/connectToChild.d.ts"
+    }
   }
 }

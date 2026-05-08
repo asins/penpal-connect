@@ -32,7 +32,6 @@ const buildDemo = process.env.BUILD_DEMO || 'true';
 
 /** 入口文件路径 */
 const entries = [
-  'src/index.ts',
   'src/connectToChild.ts',
   'src/connectToParent.ts',
 ];

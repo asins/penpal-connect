@@ -20,6 +20,7 @@ import {
   HandshakeMessage,
   PenpalMessage,
   ReplyMessage,
+  TargetWindow,
 } from "./types";
 import { isFunction } from "@theroyalwhee0/istype";
 
@@ -32,14 +33,19 @@ import { isFunction } from "@theroyalwhee0/istype";
  */
 
 export function connectToParent<TCallSender extends CallSender>(
-  option: ConnectOptions
+  {
+    target,
+    methods = {},
+    log: zLog = emptyFn,
+    origin = '*',
+    timeout,
+  }: ConnectOptions
 ) {
-  const { target, methods = {}, log: zLog = emptyFn, origin = '*', timeout } = option
   let destroyed = false; // 是否已销毁
 
   const startTime = Date.now();
   const callSender = {} as TCallSender;
-  const deferredChild = defer<CallSender>();
+  const deferredChild = defer<TCallSender>();
   const callSenderFactory = createHandlerFactory();
 
   // 发送数据
@@ -192,7 +198,7 @@ export function connectToParent<TCallSender extends CallSender>(
   const handleReplyMessage = (data: ReplyMessage) => {
     callSenderFactory.handle(data);
   }
-  
+
   const sendSynMessage = () => {
     const synMessage: HandshakeMessage = { penpal: MessageType.Syn };
     zLog(`握手 - 开始发送SYN消息: ${JSON.stringify(synMessage)}`);
@@ -218,7 +224,7 @@ export function connectToParent<TCallSender extends CallSender>(
 
   zLog(`开始等待握手连接`);
   target.onMessage(handleMessageEvent);
-  
+
   sendSynMessage();
 
   return {
@@ -229,4 +235,6 @@ export function connectToParent<TCallSender extends CallSender>(
 
 export type {
   PenpalMessage,
+  TargetWindow,
+  CallSender,
 }

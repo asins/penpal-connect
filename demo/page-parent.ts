@@ -3,7 +3,6 @@ import {
   NormalColor,
   SuccessColor,
   ErrorColor,
-  // type PageParams,
 } from "@demo/config";
 import { initUiGlobal } from "@demo/ui-global";
 import createDebug from 'zlog-web';
@@ -16,9 +15,8 @@ import {
   getOriginFromUrl,
   createIframe,
 } from '@demo/utils';
-import { connectToChild } from "@/index";
+import { connectToChild, PenpalMessage } from "@/connectToChild";
 import to from "await-to-js";
-import { PenpalMessage } from "@/types";
 
 const moduleName = 'PenpalConnectDemo:Parent';
 const zLog = createDebug(moduleName);
